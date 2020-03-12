@@ -782,6 +782,31 @@ ExpressibleByFloatLiteral {
     public static func /=(lhs: inout BInt, rhs: BInt) { lhs = lhs / rhs       }
     static func /=(lhs: inout BInt, rhs: Int) { lhs = lhs / BInt(rhs) }
     
+    /// Quick exponentiation/modulo algorithm
+    /// FIXME: for security, this should use the constant-time Montgomery algorithm to thwart timing attacks
+    ///
+    /// - Parameters:
+    ///   - b: base
+    ///   - p: power
+    ///   - m: modulus
+    /// - Returns: pow(b, p) % m
+    static func mod_exp(_ b: BInt, _ p: BInt, _ m: BInt) -> BInt {
+        precondition(m != 0, "modulus needs to be non-zero")
+        precondition(p >= 0, "exponent needs to be non-negative")
+        var base = b % m
+        var exponent = p
+        var result = BInt(1)
+        while exponent > 0 {
+            if exponent.limbs[0] % 2 != 0 {
+                result = result * base % m
+            }
+            exponent.limbs.shiftDown(1)
+            base *= base
+            base %= m
+        }
+        return result
+    }
+    
     //
     //
     // MARK: - BInt Modulus

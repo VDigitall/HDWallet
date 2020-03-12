@@ -33,6 +33,16 @@ public class EllipticCurveEncrypterSecp256k1 {
         return publickKey
     }
     
+    public func parsePublicKey(_ key: Data) -> secp256k1_pubkey? {
+        var serializedKey = key.bytes
+        var publicKey = secp256k1_pubkey()
+        guard SecpResult(secp256k1_ec_pubkey_parse(context, &publicKey, &serializedKey, serializedKey.count)) == .success else {
+            return nil
+        }
+        
+        return publicKey
+    }
+    
     /// Signs the hash with the private key. Produces signature data structure that can be exported with
     /// export(signature:) method.
     ///

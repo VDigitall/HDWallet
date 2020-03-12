@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import secp256k1
 
 enum PrivateKeyType {
     case hd
@@ -60,7 +61,7 @@ public struct PrivateKey {
         self.keyType = .nonHd
     }
     
-    private init(privateKey: Data, chainCode: Data, index: UInt32, coin: Coin) {
+    public init(privateKey: Data, chainCode: Data, index: UInt32, coin: Coin) {
         self.raw = privateKey
         self.chainCode = chainCode
         self.index = index
@@ -134,8 +135,60 @@ public struct PrivateKey {
         )
     }
     
+    public func derivedPublic() -> PrivateKey {
+        guard keyType == .hd else { fatalError() }
+        let data = raw + Data([UInt8(0),UInt8(0),UInt8(0),UInt8(1)])
+        let digest = Crypto.HMACSHA512(key: chainCode, data: data)
+        let ki = Crypto.generatePublicKey(data: digest[0..<32], compressed: true)
+        let derivedPrivateKey = sum(publicKey1: ki, publicKey2: raw)
+        let derivedChainCode = digest[32..<64]
+        
+        return PrivateKey(
+            privateKey: derivedPrivateKey,
+            chainCode: derivedChainCode,
+            index: 1,
+            coin: coin
+        )
+    }
+    
     public func sign(hash: Data) throws -> Data {
         return try Crypto.sign(hash, privateKey: raw)
+    }
+    
+    private func decompressKey(data: Data) -> Data {
+        let encrypter = EllipticCurveEncrypterSecp256k1()
+        var publicKey = encrypter.parsePublicKey(data)!
+        return encrypter.export(publicKey: &publicKey, compressed: false)
+    }
+    
+    private func compressKey(data: Data) -> Data {
+        let encrypter = EllipticCurveEncrypterSecp256k1()
+        var publicKey = encrypter.parsePublicKey(data)!
+        return encrypter.export(publicKey: &publicKey, compressed: true)
+    }
+    
+    
+    private func sum(publicKey1: Data, publicKey2: Data) -> Data {
+        let decompressed1 = decompressKey(data: publicKey1)
+        let decompressed2 = decompressKey(data: publicKey2)
+
+        let length = (decompressed1.count - 1)/2
+        let x1 = BInt(data: decompressed1[1...length])
+        let y1 = BInt(data: decompressed1[(length+1)...])
+        let x2 = BInt(data: decompressed2[1...length])
+        let y2 = BInt(data: decompressed2[(length+1)...])
+
+        let modP = BInt(hex: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F")!
+        let a = y2 - y1
+        let b = x2 - x1
+        let p = modP - BInt(integerLiteral: 2)
+        let lambda = (BInt.mod_exp(b, p, modP) * a) % modP
+        let x3 = (lambda * lambda - x1 - x2) % modP
+        let y3 = ((lambda * (x1 - x3) - y1)) % modP
+    
+        let uncompressed = Data([UInt8(0x04)]) + x3.data + y3.data
+        let compressed = compressKey(data: uncompressed)
+        return compressed
     }
 }
 
