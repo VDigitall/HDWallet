@@ -27,6 +27,12 @@ public struct PublicKey {
         self.uncompressedPublicKey = Data(hex: publickKey)
         self.coin = coin
     }
+	
+	public init(uncompressedPublicKey: Data, compressedPublicKey: Data, coin: Coin) {
+		self.uncompressedPublicKey = uncompressedPublicKey
+		self.compressedPublicKey = compressedPublicKey
+		self.coin = coin
+	}
     
     // NOTE: https://github.com/bitcoin/bips/blob/master/bip-0013.mediawiki
     public var address: String {
