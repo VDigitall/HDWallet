@@ -12,6 +12,17 @@ public enum AddressType {
     case pubkeyHash
     case scriptHash
     case wif
+	
+	public func addressPrefix(for coin: Coin) -> UInt8 {
+		switch self {
+		case .pubkeyHash:
+			return coin.publicKeyHash
+		case .scriptHash:
+			return coin.scriptHash
+		case .wif:
+			return coin.wifAddressPrefix
+		}
+	}
 }
 
 public protocol AddressProtocol {
@@ -81,4 +92,35 @@ public struct LegacyAddress: Address {
             self.cashaddr = ""
         }
     }
+	
+	/// Initialize Legacy bitcoin address
+	/// - Parameters:
+	///   - hash: This can be `Script` or wallet public key hash (sha256)
+	///   - coin: Target blockchain
+	///   - addressType: Type of address: `pubkeyHash`, `scriptHash`, `wif`
+	public init(hash: Data, coin: Coin, addressType: AddressType) {
+		let ripemd160Hash = RIPEMD160.hash(hash)
+		let addressPrefixByte = addressType.addressPrefix(for: coin)
+		let entendedRipemd160Hash = Data([addressPrefixByte]) + ripemd160Hash
+		let sha = entendedRipemd160Hash.doubleSHA256
+		let checksum = sha[..<4]
+		let ripemd160HashWithChecksum = entendedRipemd160Hash + checksum
+		let base58 = Base58.encode(ripemd160HashWithChecksum)
+		
+		self.coin = coin
+		self.type = addressType
+		self.data = sha
+		self.base58 = base58
+		
+		switch addressType {
+		case .pubkeyHash:
+			let payload = Data([coin.publicKeyHash]) + self.data
+			self.cashaddr = Bech32.encode(payload, prefix: coin.scheme)
+		case .wif:
+			let payload = Data([coin.wifAddressPrefix]) + self.data
+			self.cashaddr = Bech32.encode(payload, prefix: coin.scheme)
+		default:
+			self.cashaddr = ""
+		}
+	}
 }
