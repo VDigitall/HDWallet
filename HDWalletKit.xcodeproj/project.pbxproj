@@ -181,6 +181,7 @@
 		34D9CF39221C3AC100B3A625 /* UtxoTransactionSignerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D9CF38221C3AC100B3A625 /* UtxoTransactionSignerInterface.swift */; };
 		34D9CF48221C447D00B3A625 /* UtxoTransactionSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D9CF47221C447D00B3A625 /* UtxoTransactionSigner.swift */; };
 		8602371595DB64FDBE46000C /* Pods_HDWalletKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A71916E6C32DA0D7349D72D7 /* Pods_HDWalletKit.framework */; };
+		B089AABC2576A423001BC1E5 /* Transaction+Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089AABB2576A423001BC1E5 /* Transaction+Script.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -387,6 +388,7 @@
 		96ADBA88328A4BE2159563A5 /* Pods-HDWalletKit_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HDWalletKit_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HDWalletKit_Tests/Pods-HDWalletKit_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		A241CE5210CEC9DFFCA47EA2 /* Pods-HDWalletKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HDWalletKit.release.xcconfig"; path = "Pods/Target Support Files/Pods-HDWalletKit/Pods-HDWalletKit.release.xcconfig"; sourceTree = "<group>"; };
 		A71916E6C32DA0D7349D72D7 /* Pods_HDWalletKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HDWalletKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B089AABB2576A423001BC1E5 /* Transaction+Script.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Transaction+Script.swift"; sourceTree = "<group>"; };
 		BF520BDF5160D0B847AED112 /* Pods-HDWalletKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HDWalletKit.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HDWalletKit/Pods-HDWalletKit.debug.xcconfig"; sourceTree = "<group>"; };
 		D4748DCAB4A042EBDF88023E /* Pods_HDWalletKit_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HDWalletKit_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE9481BAD6A096D7EC0A2E49 /* Pods-HDWalletKit-HDWalletKit_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HDWalletKit-HDWalletKit_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HDWalletKit-HDWalletKit_Tests/Pods-HDWalletKit-HDWalletKit_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -677,6 +679,7 @@
 				34C9B1C721E5087900198EAF /* Transaction.swift */,
 				34D9CF2F221C361D00B3A625 /* UTXOWallet.swift */,
 				345B813122675002000E3460 /* UtxoPrivateKeyType.swift */,
+				B089AABB2576A423001BC1E5 /* Transaction+Script.swift */,
 			);
 			path = UTXOBased;
 			sourceTree = "<group>";
@@ -1257,6 +1260,7 @@
 				34C9B1BC21E2B0D400198EAF /* VarString.swift in Sources */,
 				34B7964E212A93A0000B1251 /* KeystoreV3.swift in Sources */,
 				348C118C21D68F2B00295370 /* OP_2MUL.swift in Sources */,
+				B089AABC2576A423001BC1E5 /* Transaction+Script.swift in Sources */,
 				34D9CF37221C3AAF00B3A625 /* UtxoTransactionBuilderInterface.swift in Sources */,
 				3492214020F64D9B00A59A6F /* PrivateKey.swift in Sources */,
 				348C116021D68F2B00295370 /* ScriptExecutionContext.swift in Sources */,

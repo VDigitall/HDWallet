@@ -178,6 +178,10 @@ public enum OpCode: OpCodeProtocol {
     public var value: UInt8 {
         return opcode.value
     }
+	
+	public var isOpCode: Bool {
+		self > OpCode.OP_PUSHDATA4
+	}
 
     public func isEnabled() -> Bool {
         return opcode.isEnabled()

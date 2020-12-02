@@ -12,6 +12,7 @@ public enum AddressType {
     case pubkeyHash
     case scriptHash
     case wif
+	case testnet
 	
 	public func addressPrefix(for coin: Coin) -> UInt8 {
 		switch self {
@@ -21,6 +22,8 @@ public enum AddressType {
 			return coin.scriptHash
 		case .wif:
 			return coin.wifAddressPrefix
+		case .testnet:
+			return coin.testnetAddressPrefix
 		}
 	}
 }

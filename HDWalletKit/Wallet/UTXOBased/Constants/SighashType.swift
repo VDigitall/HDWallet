@@ -17,7 +17,7 @@ private let SIGHASH_ANYONECANPAY: UInt8 = 0x80 // 10000000
 private let SIGHASH_OUTPUT_MASK: UInt8 = 0x1f // 00011111
 
 public struct SighashType {
-    fileprivate let uint8: UInt8
+    private(set) public var uint8: UInt8
     init(_ uint8: UInt8) {
         self.uint8 = uint8
     }
@@ -52,12 +52,13 @@ public struct SighashType {
     }
     
     public struct BTC {
-        public static let ALL: SighashType = SighashType(SIGHASH_ALL) // 00000001
-        public static let NONE: SighashType = SighashType(SIGHASH_NONE) // 00000010
-        public static let SINGLE: SighashType = SighashType(SIGHASH_SINGLE) // 00000011
-        public static let ALL_ANYONECANPAY: SighashType = SighashType(SIGHASH_ALL + SIGHASH_ANYONECANPAY) // 10000001
-        public static let NONE_ANYONECANPAY: SighashType = SighashType(SIGHASH_NONE + SIGHASH_ANYONECANPAY) // 10000010
-        public static let SINGLE_ANYONECANPAY: SighashType = SighashType(SIGHASH_SINGLE + SIGHASH_ANYONECANPAY) // 10000011
+        public static let ALL: SighashType = SighashType(SIGHASH_ALL) // 0000 0001
+        public static let NONE: SighashType = SighashType(SIGHASH_NONE) // 0000 0010
+        public static let SINGLE: SighashType = SighashType(SIGHASH_SINGLE) // 0000 0011
+		public static let ANYONECANPAY: SighashType = SighashType(SIGHASH_ANYONECANPAY) // 1000 0000
+        public static let ALL_ANYONECANPAY: SighashType = SighashType(SIGHASH_ALL + SIGHASH_ANYONECANPAY) // 1000 0001
+        public static let NONE_ANYONECANPAY: SighashType = SighashType(SIGHASH_NONE + SIGHASH_ANYONECANPAY) // 1000 0010
+        public static let SINGLE_ANYONECANPAY: SighashType = SighashType(SIGHASH_SINGLE + SIGHASH_ANYONECANPAY) // 1000 0011
     }
     
     static func hashTypeForCoin(coin: Coin) -> SighashType {

@@ -19,7 +19,7 @@ public struct Transaction {
         return VarInt(inputs.count)
     }
     /// A list of 1 or more transaction inputs or sources for coins
-    public let inputs: [TransactionInput]
+    public var inputs: [TransactionInput]
     /// Number of Transaction outputs
     public var txOutCount: VarInt {
         return VarInt(outputs.count)

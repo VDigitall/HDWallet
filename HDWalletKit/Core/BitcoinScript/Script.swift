@@ -25,6 +25,19 @@
 import Foundation
 import CryptoSwift
 
+public enum ScriptType: UInt8 {
+	/// Pay to pubkey hash (aka pay to address)
+	case p2pkh = 1
+	/// Pay to pubkey
+	case p2pk = 2
+	/// Pay to script hash
+	case p2sh = 3
+	/// Pay to witness pubkey hash
+	case p2wpkh = 4
+	/// Pay to witness script hash
+	case p2wsh = 5
+}
+
 public class Script {
     // An array of Data objects (pushing data) or UInt8 objects (containing opcodes)
     private var chunks: [ScriptChunk]
@@ -66,6 +79,8 @@ public class Script {
     public typealias MultisigVariables = (nSigRequired: UInt, publickeys: [PublicKey])
     public var multisigRequirements: MultisigVariables?
 
+	// MARK: - Initializers
+	
     public init() {
         self.chunks = [ScriptChunk]()
     }
@@ -154,6 +169,8 @@ public class Script {
             return nil
         }
     }
+	
+	// MARK: -
 
     private static func parseData(_ data: Data) throws -> [ScriptChunk] {
         guard !data.isEmpty else {
@@ -173,6 +190,16 @@ public class Script {
         }
         return chunks
     }
+	
+	public var scriptType: ScriptType {
+		if isPayToPublicKeyHashScript {
+			return .p2pkh
+		}
+		if isPayToScriptHashScript {
+			return .p2sh
+		}
+		return .p2pk
+	}
 
     public var isStandard: Bool {
         return isPayToPublicKeyHashScript
@@ -213,6 +240,39 @@ public class Script {
             && pushedData(at: 1)?.count == 20 // this is enough to match the exact byte template, any other encoding will be larger.
             && opcode(at: 2) == OpCode.OP_EQUAL
     }
+	
+	public var isSentToMultisig: Bool {
+		if chunks.count < 4 { return false }
+		let chunk = chunks[chunks.count - 1]
+		
+		// Must end in OP_CHECKMULTISIG[VERIFY].
+		if !(chunk.opCode.isOpCode) { return false }
+		if !(chunk.opCode == OpCode.OP_CHECKMULTISIG || chunk.opCode == OpCode.OP_CHECKMULTISIGVERIFY) { return false }
+		
+		// Second to last chunk must be an OP_N opcode and there should be that many data chunks (keys).
+		let m = chunks[chunks.count - 2]
+		
+		if !(m.opCode.isOpCode) { return false }
+		do {
+			let numKeys = try decodeFromOpN(opcode: m.opCode)
+			if numKeys < 1 || chunks.count != 3 + Int(numKeys) { return false }
+			
+			for i in 1..<(chunks.count - 2) {
+				let chunk = chunks[i]
+				// Second check is needed because of OpCode implementation. It's not supported custom opcodes like data lenght that is lower than PUSHDATA1
+				// Ex. for bitcoin multisig addresses it will be the length of the compressed public key (33)
+				if chunk.opCode.isOpCode && chunk.opcodeValue >= OpCode.OP_PUSHDATA1.value {
+					return false
+				}
+			}
+			if try decodeFromOpN(opcode: chunks[0].opCode) < 1 {
+				return false
+			}
+		} catch {
+			return false
+		}
+		return true
+	}
 
     // Returns true if the script ends with P2SH check.
     // Not used in CoreBitcoin. Similar code is used in bitcoin-ruby. I don't know if we'll ever need it.
@@ -446,6 +506,22 @@ public class Script {
             throw ScriptMachineError.error("Condition branches not balanced.")
         }
     }
+	
+	private func decodeFromOpN(opcode: OpCode) throws -> UInt8 {
+		guard
+			opcode == OpCode.OP_0 ||
+				opcode == OpCode.OP_1NEGATE ||
+				(OpCode.OP_1 <= opcode && opcode <= OpCode.OP_16)
+		else { throw ScriptError.error("decodeFromOpN called on non OP_N opcode") }
+		if opcode == OpCode.OP_0 {
+			return 0
+		} else if opcode == OpCode.OP_1NEGATE {
+			return UInt8(bitPattern: -1)
+		} else {
+			return opcode.value + 1 - OpCode.OP_1.value
+		}
+		
+	}
 }
 
 extension Script {

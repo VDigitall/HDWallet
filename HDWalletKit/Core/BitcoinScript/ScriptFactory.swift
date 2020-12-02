@@ -60,6 +60,25 @@ public extension ScriptFactory.Standard {
     }
 }
 
+// MARK: - MultiSig
+public extension ScriptFactory.MultiSig {
+	static func createMultiSigInputScriptBytes(for signatures: [Data], with script: Script) -> Script? {
+		guard signatures.count <= 16 else { return nil }
+		var newScript: Script
+		do {
+			newScript = try Script().append(OpCode.OP_0)
+			try signatures.forEach {
+				newScript = try newScript.appendData($0)
+			}
+			newScript = try newScript.appendData(script.data)
+		} catch {
+			print("Failed to create multisig input script")
+			return nil
+		}
+		return newScript
+	}
+}
+
 // MARK: - LockTime
 public extension ScriptFactory.LockTime {
     // Base
