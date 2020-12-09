@@ -123,7 +123,7 @@
 		348C11BC21D68F2C00295370 /* OP_ENDIF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115821D68F2B00295370 /* OP_ENDIF.swift */; };
 		348C11BD21D68F2C00295370 /* Opcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115921D68F2B00295370 /* Opcode.swift */; };
 		348C11BE21D68F2C00295370 /* OpCodeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115A21D68F2B00295370 /* OpCodeFactory.swift */; };
-		348C11BF21D68F2C00295370 /* Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115B21D68F2B00295370 /* Script.swift */; };
+		348C11BF21D68F2C00295370 /* HDWalletScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115B21D68F2B00295370 /* HDWalletScript.swift */; };
 		348C11C021D68F2C00295370 /* ScriptMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C115C21D68F2B00295370 /* ScriptMachine.swift */; };
 		348C11C921DFDB9400295370 /* Data+Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C11C821DFDB9400295370 /* Data+Script.swift */; };
 		348C11CB21E1675B00295370 /* UtilsAndLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348C11CA21E1675B00295370 /* UtilsAndLimits.swift */; };
@@ -325,7 +325,7 @@
 		348C115821D68F2B00295370 /* OP_ENDIF.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OP_ENDIF.swift; sourceTree = "<group>"; };
 		348C115921D68F2B00295370 /* Opcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcode.swift; sourceTree = "<group>"; };
 		348C115A21D68F2B00295370 /* OpCodeFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpCodeFactory.swift; sourceTree = "<group>"; };
-		348C115B21D68F2B00295370 /* Script.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Script.swift; sourceTree = "<group>"; };
+		348C115B21D68F2B00295370 /* HDWalletScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HDWalletScript.swift; sourceTree = "<group>"; };
 		348C115C21D68F2B00295370 /* ScriptMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptMachine.swift; sourceTree = "<group>"; };
 		348C11C821DFDB9400295370 /* Data+Script.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Script.swift"; sourceTree = "<group>"; };
 		348C11CA21E1675B00295370 /* UtilsAndLimits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilsAndLimits.swift; sourceTree = "<group>"; };
@@ -454,7 +454,7 @@
 				348C10F321D68F2B00295370 /* OP_CODE */,
 				348C115921D68F2B00295370 /* Opcode.swift */,
 				348C115A21D68F2B00295370 /* OpCodeFactory.swift */,
-				348C115B21D68F2B00295370 /* Script.swift */,
+				348C115B21D68F2B00295370 /* HDWalletScript.swift */,
 				348C115C21D68F2B00295370 /* ScriptMachine.swift */,
 			);
 			path = BitcoinScript;
@@ -1209,7 +1209,7 @@
 				348C119121D68F2C00295370 /* OP_1SUB.swift in Sources */,
 				348C116421D68F2B00295370 /* OP_SHA256.swift in Sources */,
 				348C11A421D68F2C00295370 /* OP_ROT.swift in Sources */,
-				348C11BF21D68F2C00295370 /* Script.swift in Sources */,
+				348C11BF21D68F2C00295370 /* HDWalletScript.swift in Sources */,
 				3492216B20F747EC00A59A6F /* EllipticCurveEncrypterSecp256k1.swift in Sources */,
 				3492213420F64D9B00A59A6F /* SMP.swift in Sources */,
 				3492216620F6B79400A59A6F /* RLP.swift in Sources */,

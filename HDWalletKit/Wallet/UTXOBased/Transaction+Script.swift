@@ -9,11 +9,11 @@
 import Foundation
 
 public extension Transaction {
-	public func hashForSignature(index: Int, script: Script, type: SighashType) throws -> Data {
+	public func hashForSignature(index: Int, script: HDWalletScript, type: SighashType) throws -> Data {
 		try hashForSignature(index: index, scriptData: script, sigHashType: type.uint8)
 	}
 	
-	public func hashForSignature(index: Int, scriptData: Script, sigHashType: UInt8) throws -> Data {
+	public func hashForSignature(index: Int, scriptData: HDWalletScript, sigHashType: UInt8) throws -> Data {
 		var connectedScript = scriptData
 		var inputs = self.inputs.map { TransactionInput(previousOutput: $0.previousOutput, signatureScript: Data(), sequence: $0.sequence) }
 		var outputs = self.outputs

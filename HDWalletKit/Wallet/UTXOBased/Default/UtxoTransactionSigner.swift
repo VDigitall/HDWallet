@@ -31,7 +31,7 @@ public struct UtxoTransactionSigner: UtxoTransactionSignerInterface {
             
             // Create Signature Script
             let sigWithHashType: Data = signature + UInt8(hashType)
-            let unlockingScript: Script = try Script()
+            let unlockingScript: HDWalletScript = try HDWalletScript()
                 .appendData(sigWithHashType)
                 .appendData(pubkey.data)
             

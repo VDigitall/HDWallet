@@ -21,7 +21,7 @@ public struct BitcoinTransactionSignatureSerializer {
         let sequence: UInt32
         
         if i == inputIndex {
-            let subScript = Script(data: utxo.lockingScript)
+            let subScript = HDWalletScript(data: utxo.lockingScript)
             try! subScript?.deleteOccurrences(of: .OP_CODESEPARATOR)
             sigScript = subScript?.data ?? Data()
             sequence = txin.sequence

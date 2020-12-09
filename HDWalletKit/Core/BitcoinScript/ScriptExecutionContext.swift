@@ -125,11 +125,11 @@ public class ScriptExecutionContext {
         }
     }
 
-    public func deserializeP2SHLockScript(stackForP2SH: [Data]) throws -> Script {
+    public func deserializeP2SHLockScript(stackForP2SH: [Data]) throws -> HDWalletScript {
         var stackForP2SH: [Data] = stackForP2SH
 
         // Instantiate the script from the last data on the stack.
-        guard let last = stackForP2SH.last, let deserializedLockScript = Script(data: last) else {
+        guard let last = stackForP2SH.last, let deserializedLockScript = HDWalletScript(data: last) else {
             // stackForP2SH cannot be empty here, because if it was the
             // P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
             // an empty stack and the runScript: above would return NO.

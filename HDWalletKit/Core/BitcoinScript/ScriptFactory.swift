@@ -38,35 +38,35 @@ public struct ScriptFactory {
 
 // MARK: - Standard
 public extension ScriptFactory.Standard {
-    static func buildP2PK(publickey: PublicKey) -> Script? {
-        return try? Script()
+    static func buildP2PK(publickey: PublicKey) -> HDWalletScript? {
+        return try? HDWalletScript()
             .appendData(publickey.data)
             .append(.OP_CHECKSIG)
     }
 
-    static func buildP2PKH(address: Address) -> Script? {
-        return Script(address: address)
+    static func buildP2PKH(address: Address) -> HDWalletScript? {
+        return HDWalletScript(address: address)
     }
 
-    static func buildP2SH(script: Script) -> Script {
+    static func buildP2SH(script: HDWalletScript) -> HDWalletScript {
         return script.toP2SH()
     }
 
-    static func buildMultiSig(publicKeys: [PublicKey]) -> Script? {
-        return Script(publicKeys: publicKeys, signaturesRequired: UInt(publicKeys.count))
+    static func buildMultiSig(publicKeys: [PublicKey]) -> HDWalletScript? {
+        return HDWalletScript(publicKeys: publicKeys, signaturesRequired: UInt(publicKeys.count))
     }
-    static func buildMultiSig(publicKeys: [PublicKey], signaturesRequired: UInt) -> Script? {
-        return Script(publicKeys: publicKeys, signaturesRequired: signaturesRequired)
+    static func buildMultiSig(publicKeys: [PublicKey], signaturesRequired: UInt) -> HDWalletScript? {
+        return HDWalletScript(publicKeys: publicKeys, signaturesRequired: signaturesRequired)
     }
 }
 
 // MARK: - MultiSig
 public extension ScriptFactory.MultiSig {
-	static func createMultiSigInputScriptBytes(for signatures: [Data], with script: Script) -> Script? {
+	static func createMultiSigInputScriptBytes(for signatures: [Data], with script: HDWalletScript) -> HDWalletScript? {
 		guard signatures.count <= 16 else { return nil }
-		var newScript: Script
+		var newScript: HDWalletScript
 		do {
-			newScript = try Script().append(OpCode.OP_0)
+			newScript = try HDWalletScript().append(OpCode.OP_0)
 			try signatures.forEach {
 				newScript = try newScript.appendData($0)
 			}
@@ -82,30 +82,30 @@ public extension ScriptFactory.MultiSig {
 // MARK: - LockTime
 public extension ScriptFactory.LockTime {
     // Base
-    static func build(script: Script, lockDate: Date) -> Script? {
-        return try? Script()
+    static func build(script: HDWalletScript, lockDate: Date) -> HDWalletScript? {
+        return try? HDWalletScript()
             .appendData(lockDate.bigNumData)
             .append(.OP_CHECKLOCKTIMEVERIFY)
             .append(.OP_DROP)
             .appendScript(script)
     }
 
-    static func build(script: Script, lockIntervalSinceNow: TimeInterval) -> Script? {
+    static func build(script: HDWalletScript, lockIntervalSinceNow: TimeInterval) -> HDWalletScript? {
         let lockDate = Date(timeIntervalSinceNow: lockIntervalSinceNow)
         return build(script: script, lockDate: lockDate)
     }
 
     // P2PKH + LockTime
-    static func build(address: Address, lockIntervalSinceNow: TimeInterval) -> Script? {
-        guard let p2pkh = Script(address: address) else {
+    static func build(address: Address, lockIntervalSinceNow: TimeInterval) -> HDWalletScript? {
+        guard let p2pkh = HDWalletScript(address: address) else {
             return nil
         }
         let lockDate = Date(timeIntervalSinceNow: lockIntervalSinceNow)
         return build(script: p2pkh, lockDate: lockDate)
     }
 
-    static func build(address: Address, lockDate: Date) -> Script? {
-        guard let p2pkh = Script(address: address) else {
+    static func build(address: Address, lockDate: Date) -> HDWalletScript? {
+        guard let p2pkh = HDWalletScript(address: address) else {
             return nil
         }
         return build(script: p2pkh, lockDate: lockDate)
@@ -114,12 +114,12 @@ public extension ScriptFactory.LockTime {
 
 // MARK: - OpReturn
 public extension ScriptFactory.OpReturn {
-    static func build(text: String) -> Script? {
+    static func build(text: String) -> HDWalletScript? {
         let MAX_OP_RETURN_DATA_SIZE: Int = 220
         guard let data = text.data(using: .utf8), data.count <= MAX_OP_RETURN_DATA_SIZE else {
             return nil
         }
-        return try? Script()
+        return try? HDWalletScript()
             .append(.OP_RETURN)
             .appendData(data)
     }
@@ -127,7 +127,7 @@ public extension ScriptFactory.OpReturn {
 
 // MARK: - Condition
 public extension ScriptFactory.Condition {
-    static func build(scripts: [Script]) -> Script? {
+    static func build(scripts: [HDWalletScript]) -> HDWalletScript? {
 
         guard !scripts.isEmpty else {
             return nil
@@ -136,12 +136,12 @@ public extension ScriptFactory.Condition {
             return scripts[0]
         }
 
-        var scripts: [Script] = scripts
+        var scripts: [HDWalletScript] = scripts
 
         while scripts.count > 1 {
-            var newScripts: [Script] = []
+            var newScripts: [HDWalletScript] = []
             while !scripts.isEmpty {
-                let script = Script()
+                let script = HDWalletScript()
                 do {
                     if scripts.count == 1 {
                         try script
@@ -179,12 +179,12 @@ public extension ScriptFactory.Condition {
 */
 public extension ScriptFactory.HashedTimeLockedContract {
     // Base
-    static func build(recipient: Address, sender: Address, lockDate: Date, hash: Data, hashOp: HashOperator) -> Script? {
+    static func build(recipient: Address, sender: Address, lockDate: Date, hash: Data, hashOp: HashOperator) -> HDWalletScript? {
         guard hash.count == hashOp.hashSize else {
             return nil
         }
 
-        return try? Script()
+        return try? HDWalletScript()
             .append(.OP_IF)
                 .append(hashOp.opcode)
                 .appendData(hash)
@@ -205,18 +205,18 @@ public extension ScriptFactory.HashedTimeLockedContract {
     }
 
     // convenience
-    static func build(recipient: Address, sender: Address, lockIntervalSinceNow: TimeInterval, hash: Data, hashOp: HashOperator) -> Script? {
+    static func build(recipient: Address, sender: Address, lockIntervalSinceNow: TimeInterval, hash: Data, hashOp: HashOperator) -> HDWalletScript? {
         let lockDate = Date(timeIntervalSinceNow: lockIntervalSinceNow)
         return build(recipient: recipient, sender: sender, lockDate: lockDate, hash: hash, hashOp: hashOp)
     }
 
-    static func build(recipient: Address, sender: Address, lockIntervalSinceNow: TimeInterval, secret: Data, hashOp: HashOperator) -> Script? {
+    static func build(recipient: Address, sender: Address, lockIntervalSinceNow: TimeInterval, secret: Data, hashOp: HashOperator) -> HDWalletScript? {
         let hash = hashOp.hash(secret)
         let lockDate = Date(timeIntervalSinceNow: lockIntervalSinceNow)
         return build(recipient: recipient, sender: sender, lockDate: lockDate, hash: hash, hashOp: hashOp)
     }
 
-    static func build(recipient: Address, sender: Address, lockDate: Date, secret: Data, hashOp: HashOperator) -> Script? {
+    static func build(recipient: Address, sender: Address, lockDate: Date, secret: Data, hashOp: HashOperator) -> HDWalletScript? {
         let hash = hashOp.hash(secret)
         return build(recipient: recipient, sender: sender, lockDate: lockDate, hash: hash, hashOp: hashOp)
     }

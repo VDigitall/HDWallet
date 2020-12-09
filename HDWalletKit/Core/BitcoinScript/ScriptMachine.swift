@@ -52,14 +52,14 @@ public struct ScriptMachine {
         context.blockTimeStamp = blockTimeStamp
 
         let txInput: TransactionInput = signedTx.inputs[Int(inputIndex)]
-        guard let unlockScript = Script(data: txInput.signatureScript), let lockScript = Script(data: utxo.lockingScript) else {
+        guard let unlockScript = HDWalletScript(data: txInput.signatureScript), let lockScript = HDWalletScript(data: utxo.lockingScript) else {
             throw ScriptMachineError.error("Both lock script and sig script must be valid.")
         }
 
         return try verify(lockScript: lockScript, unlockScript: unlockScript, context: context)
     }
 
-    public static func verify(lockScript: Script, unlockScript: Script, context: ScriptExecutionContext) throws -> Bool {
+    public static func verify(lockScript: HDWalletScript, unlockScript: HDWalletScript, context: ScriptExecutionContext) throws -> Bool {
         // First step: run the input script which typically places signatures, pubkeys and other static data needed for outputScript.
         try run(unlockScript, context: context)
 
@@ -107,7 +107,7 @@ public struct ScriptMachine {
         return true
     }
 
-    public static func run(_ script: Script, context: ScriptExecutionContext) throws {
+    public static func run(_ script: HDWalletScript, context: ScriptExecutionContext) throws {
         guard script.data.count <= BTC_MAX_SCRIPT_SIZE else {
             throw ScriptMachineError.exception("Script binary is too long.")
         }

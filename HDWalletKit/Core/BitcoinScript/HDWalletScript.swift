@@ -38,7 +38,7 @@ public enum ScriptType: UInt8 {
 	case p2wsh = 5
 }
 
-public class Script {
+public class HDWalletScript {
     // An array of Data objects (pushing data) or UInt8 objects (containing opcodes)
     private var chunks: [ScriptChunk]
 
@@ -67,8 +67,8 @@ public class Script {
         return data.hex
     }
 
-    public func toP2SH() -> Script {
-        return try! Script()
+    public func toP2SH() -> HDWalletScript {
+        return try! HDWalletScript()
             .append(.OP_HASH160)
             .appendData(RIPEMD160.hash(data.sha256()))
             .append(.OP_EQUAL)
@@ -93,7 +93,7 @@ public class Script {
         // It's important to keep around original data to correctly identify the size of the script for BTC_MAX_SCRIPT_SIZE check
         // and to correctly calculate hash for the signature because in BitcoinQT scripts are not re-serialized/canonicalized.
         do {
-            let chunks = try Script.parseData(data)
+            let chunks = try HDWalletScript.parseData(data)
             self.init(chunks: chunks)
         } catch let error {
             print(error)
@@ -382,13 +382,13 @@ public class Script {
     }
 
     private func update(with updatedData: Data) throws {
-        let updatedChunks = try Script.parseData(updatedData)
+        let updatedChunks = try HDWalletScript.parseData(updatedData)
         chunks = updatedChunks
         invalidateSerialization()
     }
 
     @discardableResult
-    public func append(_ opcode: OpCode) throws -> Script {
+    public func append(_ opcode: OpCode) throws -> HDWalletScript {
         let invalidOpCodes: [OpCode] = [.OP_PUSHDATA1,
                                                 .OP_PUSHDATA2,
                                                 .OP_PUSHDATA4,
@@ -403,7 +403,7 @@ public class Script {
     }
 
     @discardableResult
-    public func appendData(_ newData: Data) throws -> Script {
+    public func appendData(_ newData: Data) throws -> HDWalletScript {
         guard !newData.isEmpty else {
             throw ScriptError.error("Data is empty.")
         }
@@ -418,7 +418,7 @@ public class Script {
     }
 
     @discardableResult
-    public func appendScript(_ otherScript: Script) throws -> Script {
+    public func appendScript(_ otherScript: HDWalletScript) throws -> HDWalletScript {
         guard !otherScript.data.isEmpty else {
             throw ScriptError.error("Script is empty.")
         }
@@ -430,7 +430,7 @@ public class Script {
     }
 
     @discardableResult
-    public func deleteOccurrences(of data: Data) throws -> Script {
+    public func deleteOccurrences(of data: Data) throws -> HDWalletScript {
         guard !data.isEmpty else {
             return self
         }
@@ -441,22 +441,22 @@ public class Script {
     }
 
     @discardableResult
-    public func deleteOccurrences(of opcode: OpCode) throws -> Script {
+    public func deleteOccurrences(of opcode: OpCode) throws -> HDWalletScript {
         let updatedData = chunks.filter { $0.opCode != opcode }.reduce(Data()) { $0 + $1.chunkData }
         try update(with: updatedData)
         return self
     }
 
-    public func subScript(from index: Int) throws -> Script {
-        let subScript: Script = Script()
+    public func subScript(from index: Int) throws -> HDWalletScript {
+        let subScript: HDWalletScript = HDWalletScript()
         for chunk in chunks[index..<chunks.count] {
             try subScript.appendData(chunk.chunkData)
         }
         return subScript
     }
 
-    public func subScript(to index: Int) throws -> Script {
-        let subScript: Script = Script()
+    public func subScript(to index: Int) throws -> HDWalletScript {
+        let subScript: HDWalletScript = HDWalletScript()
         for chunk in chunks[0..<index] {
             try subScript.appendData(chunk.chunkData)
         }
@@ -524,7 +524,7 @@ public class Script {
 	}
 }
 
-extension Script {
+extension HDWalletScript {
     // Standard Transaction to Bitcoin address (pay-to-pubkey-hash)
     // scriptPubKey: OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
     public static func buildPublicKeyHashOut(pubKeyHash: Data) -> Data {
@@ -554,7 +554,7 @@ extension Script {
     }
 }
 
-extension Script: CustomStringConvertible {
+extension HDWalletScript: CustomStringConvertible {
     public var description: String {
         return string
     }
