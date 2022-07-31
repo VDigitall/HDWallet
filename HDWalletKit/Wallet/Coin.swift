@@ -15,6 +15,7 @@ public enum Coin {
     case bitcoinCash
     case dash
     case dogecoin
+    case atom
     
     //https://github.com/satoshilabs/slips/blob/master/slip-0132.md
     public var privateKeyVersion: UInt32 {
@@ -22,7 +23,7 @@ public enum Coin {
         case .litecoin:
             return 0x019D9CFE
         case .bitcoinCash: fallthrough
-        case .bitcoin:
+        case .bitcoin, .atom:
             return 0x0488ADE4
         case .dash:
             return 0x02FE52CC
@@ -39,7 +40,7 @@ public enum Coin {
         case .litecoin:
             return 0x30
         case .bitcoinCash: fallthrough
-        case .bitcoin:
+        case .bitcoin, .atom:
             return 0x00
         case .dash:
             return 0x4C
@@ -61,6 +62,8 @@ public enum Coin {
             return 0x10
         case .dogecoin:
             return 0x16
+        case .atom:
+            return 0xa
         default:
             fatalError("Not implemented")
         }
@@ -72,7 +75,7 @@ public enum Coin {
         case .dogecoin:
             return 0x9E
         case .bitcoinCash: fallthrough
-        case .bitcoin:
+        case .bitcoin, .atom:
             return 0x80
         case .litecoin:
             return 0xB0
@@ -95,6 +98,8 @@ public enum Coin {
         switch self {
         case .ethereum:
             return "0x"
+        case .atom:
+            return "cosmos"
         default:
             return ""
         }
@@ -119,6 +124,8 @@ public enum Coin {
             return 60
         case .bitcoinCash:
             return 145
+        case .atom:
+            return 118
         }
     }
     

@@ -201,37 +201,41 @@ public struct Bech32 {
     }
     
     private static func expand(_ prefix: String) -> Data {
-        var ret: Data = Data()
-        let buf: [UInt8] = Array(prefix.utf8)
-        for b in buf {
-            ret += b & 0x1f
+        var lData: Data = Data()
+        var rData: Data = Data()
+        let data: [UInt8] = Array(prefix.utf8)
+        for b in data {
+            lData += b >> 5
+            rData += b & 31
         }
-        ret += Data(repeating: 0, count: 1)
-        return ret
+        return lData + Data(repeating: 0, count: 1) + rData
     }
     
     private static func createChecksum(prefix: String, payload: Data) -> Data {
-        let enc: Data = expand(prefix) + payload + Data(repeating: 0, count: 8)
-        let mod: UInt64 = PolyMod(enc)
-        var ret: Data = Data()
-        for i in 0..<8 {
-            ret += UInt8((mod >> (5 * (7 - i))) & 0x1f)
+        let enc: Data = expand(prefix) + payload + Data(repeating: 0, count: 6)
+        let mod: UInt64 = PolyMod(enc) ^ 1
+        var bytes: [UInt8] = []
+        for i in 0..<6 {
+            bytes.append(UInt8((mod >> (5 * (5 - i))) & 31))
         }
-        return ret
+        return Data(bytes)
     }
     
     private static func PolyMod(_ data: Data) -> UInt64 {
-        var c: UInt64 = 1
-        for d in data {
-            let c0: UInt8 = UInt8(c >> 35)
-            c = ((c & 0x07ffffffff) << 5) ^ UInt64(d)
-            if c0 & 0x01 != 0 { c ^= 0x98f2bc8e61 }
-            if c0 & 0x02 != 0 { c ^= 0x79b76d99e2 }
-            if c0 & 0x04 != 0 { c ^= 0xf33e5fb3c4 }
-            if c0 & 0x08 != 0 { c ^= 0xae2eabe2a8 }
-            if c0 & 0x10 != 0 { c ^= 0x1e4f43e470 }
+        let generator: [UInt64] = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3]
+        var chk: UInt64 = 1
+        for b in data {
+            let top: UInt8 = UInt8(chk >> 25)
+            chk = (chk & 0x1ffffff) << 5 ^ UInt64(b)
+            for i in 0..<5 {
+                if ((top >> i) & 1) != 0 {
+                    chk ^= generator[i]
+                } else {
+                    chk ^= 0
+                }
+            }
         }
-        return c ^ 1
+        return chk
     }
     
     private static func convertTo5bit(data: Data, pad: Bool) -> Data {
@@ -282,6 +286,41 @@ public struct Bech32 {
         return Data(converted)
     }
     
+    public static func convertBits(_ bytes: Data, fromBits: Int, toBits: Int, pad: Bool = true) -> Data? {
+        var acc = Int()
+        var bits = Int()
+        var converted: [UInt8] = []
+        let maxv = (1 << toBits) - 1
+        let max_acc = (1 << (fromBits + toBits - 1)) - 1
+        for b in bytes {
+            if b < 0 || (b >> fromBits) != 0 {
+                return nil
+            }
+            acc = ((acc << fromBits) | Int(b)) & max_acc
+            bits += fromBits
+            while bits >= toBits {
+                bits -= toBits
+                converted.append(UInt8(acc >> bits & maxv))
+            }
+        }
+        if pad && bits > 0 {
+            converted.append(UInt8((acc << (toBits - bits)) & maxv))
+        } else if bits >= fromBits || ((acc << (toBits - bits)) & maxv) != 0 {
+            return nil
+        }
+        return Data(converted)
+    }
+
+    public static func bech32Encode(_ bytes: Data, prefix: String) -> String {
+        let checksum: Data = createChecksum(prefix: prefix, payload: bytes)
+        let combined: Data = bytes + checksum
+        var base32 = ""
+        for b in combined {
+            base32 += String(base32Alphabets[String.Index(utf16Offset: Int(b), in: base32Alphabets)])
+        }
+        return prefix + "1" + base32
+    }
+
     private enum DecodeError: Error {
         case invalidCharacter
         case invalidBits
