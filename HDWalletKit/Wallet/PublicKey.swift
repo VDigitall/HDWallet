@@ -45,14 +45,16 @@ public struct PublicKey {
             return generateBtcAddress()
         case .ethereum:
             return generateEthAddress()
+        case .atom:
+            return generateCosmosAddress()
         }
     }
-    
+
     public var utxoAddress: Address {
         switch coin {
         case .bitcoin, .litecoin, .dash, .bitcoinCash, .dogecoin:
             return try! LegacyAddress(address, coin: coin)
-        case .ethereum:
+        case .ethereum, .atom:
             fatalError("Coin does not support UTXO address")
         }
     }
@@ -76,6 +78,13 @@ public struct PublicKey {
         return coin.addressPrefix + EIP55.encode(addressData)
     }
     
+    func generateCosmosAddress() -> String {
+        let payload = RIPEMD160.hash(compressedPublicKey.sha256())
+        let converted = Bech32.convertBits(payload, fromBits: 8, toBits: 5, pad: true)
+        let result = Bech32.bech32Encode(converted!, prefix: coin.addressPrefix)
+        return result
+    }
+
     public func get() -> String {
         return compressedPublicKey.toHexString()
     }

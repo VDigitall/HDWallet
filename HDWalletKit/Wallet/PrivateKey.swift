@@ -95,7 +95,7 @@ public struct PrivateKey {
         case .bitcoin: fallthrough
         case .litecoin: fallthrough
         case .dash: fallthrough
-        case .bitcoinCash:
+        case .bitcoinCash, .atom:
             return self.wifCompressed()
         case .dogecoin:
             return self.wifUncompressed()
